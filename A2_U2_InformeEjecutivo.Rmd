@@ -25,8 +25,41 @@ library(devtools)
 data("vivienda")
 ```
 
+Caso C&A
 
-```{r , include=FALSE, message=FALSE, echo=FALSE, warning=FALSE}
+Enunciado
+
+
+Maria comenzó como agente de bienes raíces en Cali hace 10 años. Después de laborar dos años para una empresa nacional, se traslado a Bogotá y trabajó para otra agencia de bienes raíces. Sus amigos y familiares la convencieron de que con su experiencia y conocimientos del negocio debía abrir su propia agencia. Terminó por adquirir la licencia de intermediario y al poco tiempo fundó su propia compañía, C&A (Casas y Apartamentos) en Cali. Santiago y Lina, dos vendedores de la empresa anterior aceptaron trabajar en la nueva compaña. En la actualidad ocho agentes de bienes raíces colaboran con ella en C&A.
+
+
+Actualmente las ventas de bienes raíces en Cali se han visto disminuidas de manera significativa en lo corrido del año. Durante este periodo muchas instituciones bancarias de ahorro y vivienda están prestando grandes sumas de dinero para la industria y la construcción comercial y residencial. Cuando el efecto producto de las tensiones políticas y sociales disminuya, se espera que la actividad económica de este sector se reactive.
+
+
+Hace dos días, María recibió una carta solicitando asesoría para la compra de dos viviendas por parte de una compañía internacional que desea ubicar a dos de sus empleados con sus familias en la ciudad. Las solicitudes incluyen las siguientes condiciones:
+
+
+![](data:image/png;base64,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)
+
+Pasos requeridos para la obtención de los resultados
+
+
+1. Realice un filtro a la base de datos e incluya solo las ofertas de : base1: casas, de la zona norte de la ciudad. Presente los primeros 3 registros de las bases y algunas tablas que comprueben la consulta. (Adicional un mapa con los puntos de las bases. Discutir si todos los puntos se ubican en la zona correspondiente o se presentan valores en otras zonas, por que?).
+
+2. Realice un análisis exploratorio de datos enfocado en la correlación entre la variable respuesta (precio de la casa) en función del área construida, estrato, numero de baños, numero de habitaciones y zona donde se ubica la vivienda. Use gráficos interactivos con el paquete plotly e interprete los resultados.
+
+3. Estime un modelo de regresión lineal múltiple con las variables del punto anterior (precio = f(área construida, estrato, número de cuartos, número de parqueaderos, número de baños ) ) e interprete los coeficientes si son estadísticamente significativos. Las interpretaciones deber están contextualizadas y discutir si los resultados son lógicos. Adicionalmente interprete el coeficiente R2
+ y discuta el ajuste del modelo e implicaciones (que podrían hacer para mejorarlo).
+
+4. Realice la validación de supuestos del modelo e interprete los resultados (no es necesario corregir en caso de presentar problemas, solo realizar sugerencias de que se podría hacer).
+
+5. Con el modelo identificado debe predecir el precio de la vivienda con las características de la primera solicitud.
+
+6. Con las predicciones del modelo sugiera potenciales ofertas que responda a la solicitud de la vivienda 1. Tenga encuentra que la empresa tiene crédito pre-aprobado de máximo 350 millones de pesos. Realice un análisis y presente en un mapa al menos 5 ofertas potenciales que debe discutir.
+
+7. Realice los pasos del 1 al 6. Para la segunda solicitud que tiene un crédito pre-aprobado por valor de $850 millones.
+
+```{r , warning=FALSE, echo=FALSE}
 str(vivienda)
 ```
 
