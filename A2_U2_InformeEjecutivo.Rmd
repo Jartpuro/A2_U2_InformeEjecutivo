@@ -1,0 +1,34 @@
+---
+title: "A2_U2_InformeEjecutivo"
+author: "Jhon Alexander Rojas Tavera"
+date: "2024-03-09"
+output: 
+  html_document:
+    toc: yes
+    toc_float: yes
+  pdf_document:
+    toc: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r , include=FALSE, message=FALSE, echo=FALSE, warning=FALSE}
+
+options(repos = "https://cloud.r-project.org/")
+install.packages("devtools") # solo la primera vez
+devtools::install_github("dgonxalex80/paqueteMODELOS", force =TRUE)
+library(paqueteMODELOS)
+library(knitr)
+library(devtools)
+data("vivienda")
+```
+
+
+```{r , include=FALSE, message=FALSE, echo=FALSE, warning=FALSE}
+str(vivienda)
+```
+
+
+
