@@ -311,9 +311,6 @@ kable(summary(casas_zona_oriente))
 
 ```
 
-
-
-
 <p>
 El análisis del gráfico de dispersión para la Zona Oriente revela una correlación positiva moderada entre el precio y el área construida, con un coeficiente de correlación de 0.41. Si bien existe una relación directa entre ambas variables, la influencia del área construida sobre el precio es menor que en las zonas Norte y Sur. La línea de tendencia indica un aumento promedio de 0.7 millones de pesos por cada metro cuadrado adicional, pero la dispersión significativa de los puntos alrededor de la línea refleja una notable variabilidad en los precios.
 
@@ -331,9 +328,6 @@ ggplot(casas_zona_oriente, aes(x = areaconst, y = preciom)) +
             label = paste("Correlación:", round(cor(casas_zona_oriente$areaconst, casas_zona_oriente$preciom), 2)), 
             color = "black", hjust = 1, vjust = 1)
 
-
-
-
 # Instalar y cargar el paquete leaflet.extras
 suppressMessages(library(leaflet.extras))
 library(leaflet.extras)
@@ -346,8 +340,6 @@ mapa_oriente <- leaflet(casas_zona_oriente) %>%
 
 mapa_oriente  # Mostrar el mapa interactivo
 
-
-
 # Tabla de frecuencia de los tipos de vivienda en la zona norte
 tipo_counts_oriente <- table(casas_zona_oriente$tipo)
 cat("Tabla de frecuencia de tipos de vivienda en la zona oriente:\n")
@@ -358,7 +350,6 @@ estrato_counts_oriente <- table(casas_zona_oriente$estrato)
 cat("Tabla de frecuencia de estratos en la zona oriente:\n")
 kable(estrato_counts_oriente)
   
-
 
 # Tabla de frecuencia de barrios en la zona norte (los 10 primeros)
 top_barrios_oriente <- head(table(casas_zona_oriente$barrio), 10)
@@ -376,8 +367,6 @@ kable(top_barrios_df_oriente)
 ```
 
 
-
-
 <h2>Zona Oeste</h2>
 
 
@@ -388,8 +377,6 @@ En relación a los precios de las casas, se evidencia una variación amplia, con
 
 El análisis del área construida también muestra una diversidad notable, con valores que van desde 55 hasta 1200 metros cuadrados. La mediana y la media indican que la mayoría de las casas tienen un área construida de alrededor de 300 y 343.2 metros cuadrados, respectivamente.
 </p>
-
-
 
 ```{r , warning=FALSE, message=FALSE, echo=FALSE}
 
@@ -414,8 +401,6 @@ kable(head(casas_zona_oeste, 3))
 cat("Estadísticas descriptivas de las ofertas de casas en la zona Oeste:\n")
 kable(summary(casas_zona_oeste))
 
-
-
 ```
 
 
@@ -423,7 +408,6 @@ kable(summary(casas_zona_oeste))
 El gráfico de dispersión para la Zona Oeste muestra una correlación positiva moderada entre el precio y el área construida, con un coeficiente de correlación de 0.59. Esto indica una relación directa, pero no determinante, entre ambas variables. La línea de tendencia sugiere un aumento promedio de 0.95 millones de pesos por cada metro cuadrado adicional, pero la considerable dispersión de los puntos alrededor de la línea refleja una variación notable en los precios.
 
 </p>
-
 
 ```{r , warning=FALSE, message=FALSE, echo=FALSE}
 # Gráfico de dispersión de precios versus área construida con ggplot2
@@ -435,8 +419,6 @@ ggplot(casas_zona_oeste, aes(x = areaconst, y = preciom)) +
   geom_text(x = max(casas_zona_oeste$areaconst), y = max(casas_zona_oeste$preciom), 
             label = paste("Correlación:", round(cor(casas_zona_oeste$areaconst, casas_zona_oeste$preciom), 2)), 
             color = "black", hjust = 1, vjust = 1)
-
-
 
 # Instalar y cargar el paquete leaflet.extras
 suppressMessages(library(leaflet.extras))
@@ -451,7 +433,6 @@ mapa_oeste <- leaflet(casas_zona_oeste) %>%
 mapa_oeste  # Mostrar el mapa interactivo
 
 
-
 # Tabla de frecuencia de los tipos de vivienda en la zona norte
 tipo_counts_oeste <- table(casas_zona_oeste$tipo)
 cat("Tabla de frecuencia de tipos de vivienda en la zona Oeste:\n")
@@ -462,7 +443,6 @@ estrato_counts_oeste <- table(casas_zona_oeste$estrato)
 cat("Tabla de frecuencia de estratos en la zona Oeste:\n")
 kable(estrato_counts_oeste)
   
-
 
 # Tabla de frecuencia de barrios en la zona norte (los 10 primeros)
 top_barrios_oeste <- head(table(casas_zona_oeste$barrio), 10)
@@ -476,14 +456,9 @@ top_barrios_df_oeste <- arrange(top_barrios_df_oeste, desc(Freq))
 cat("Tabla de frecuencia de barrios en la zona oeste (ordenada por frecuencia descendente):\n")
 kable(top_barrios_df_oeste)
 
-
 ```
 
-
-
-
 <h2>Zona Centro</h2>
-
 
 <p>
 Las estadísticas descriptivas de las ofertas de casas en la zona centro revelan una distribución diversificada en los datos. Con un total de 100 registros, se destaca una variabilidad significativa en los atributos considerados. Al igual que en otras zonas, se encuentran valores faltantes en algunos atributos, lo cual es coherente con la estructura original del dataset.
@@ -498,8 +473,6 @@ El análisis del área construida también muestra una diversidad significativa,
 # Cargar el paquete necesario para visualizar los datos en un mapa
 install_leaflet <- capture.output(install.packages("leaflet"), file = NULL)
 library(leaflet)
-
-
 
 # Cargar el paquete ggplot2 para visualizaciones gráficas
 install_ggplot2 <- suppressMessages(install.packages("ggplot2"))
@@ -516,15 +489,11 @@ kable(head(casas_zona_centro, 3))
 cat("Estadísticas descriptivas de las ofertas de casas en la zona Centro:\n")
 kable(summary(casas_zona_centro))
 
-
-
 ```
 
 <p>
 El gráfico de dispersión para la Zona Centro revela una correlación positiva moderada entre el precio y el área construida, con un coeficiente de correlación de 0.53. Si bien existe una relación directa entre ambas variables, la influencia del área construida sobre el precio es menor que en otras zonas. La línea de tendencia indica un aumento promedio de 0.85 millones de pesos por cada metro cuadrado adicional, pero la notable dispersión de los puntos alrededor de la línea refleja una variabilidad considerable en los precios.
 </p>
-
-
 
 ```{r , warning=FALSE, message=FALSE, echo=FALSE}
 # Gráfico de dispersión de precios versus área construida con ggplot2
@@ -536,8 +505,6 @@ ggplot(casas_zona_centro, aes(x = areaconst, y = preciom)) +
   geom_text(x = max(casas_zona_centro$areaconst), y = max(casas_zona_centro$preciom), 
             label = paste("Correlación:", round(cor(casas_zona_centro$areaconst, casas_zona_centro$preciom), 2)), 
             color = "black", hjust = 1, vjust = 1)
-
-
 
 # Instalar y cargar el paquete leaflet.extras
 suppressMessages(library(leaflet.extras))
@@ -551,8 +518,6 @@ mapa_centro <- leaflet(casas_zona_centro) %>%
 
 mapa_centro  # Mostrar el mapa interactivo
 
-
-
 # Tabla de frecuencia de los tipos de vivienda en la zona norte
 tipo_counts_centro <- table(casas_zona_centro$tipo)
 cat("Tabla de frecuencia de tipos de vivienda en la zona Centro:\n")
@@ -563,8 +528,6 @@ estrato_counts_centro <- table(casas_zona_centro$estrato)
 cat("Tabla de frecuencia de estratos en la zona Centro:\n")
 kable(estrato_counts_centro)
   
-
-
 # Tabla de frecuencia de barrios en la zona norte (los 10 primeros)
 top_barrios_centro <- head(table(casas_zona_centro$barrio), 10)
 top_barrios_df_centro <- as.data.frame(top_barrios_centro)  # Convertir a un dataframe para usar dplyr
@@ -577,19 +540,28 @@ top_barrios_df_centro <- arrange(top_barrios_df_centro, desc(Freq))
 cat("Tabla de frecuencia de barrios en la zona oriente (ordenada por frecuencia descendente):\n")
 kable(top_barrios_df_centro)
 
-
 ```
 
-
-
-
-
+## Momento de discución
+<p>
+En el siguiente mapa se puede observar a una sola vista como se encuentra la distribución de casas según la zona registrada en el dataset, es importante destacar que se logra identificar que existen barrios que según sus coordenadas comparten la misma zona, esto puede deberse a errores humanos en el ingreso de longitud y latitud o en la asignación de la variable barrio en el sistema de información que se diseñó para la captura de los datos.
+</p>
 
 ```{r , warning=FALSE, message=FALSE, echo=FALSE}
+
 library(leaflet)
 
 # Combinar datos de trinchetas de todas las zonas en un único conjunto de datos
-todas_trinchetas <- rbind(casas_zona_norte, casas_zona_sur, casas_zona_oriente, casas_zona_oeste, casas_zona_centro)
+todas_trinchetas <- rbind(
+  transform(casas_zona_norte, zona = "norte"),
+  transform(casas_zona_sur, zona = "sur"),
+  transform(casas_zona_oriente, zona = "oriente"),
+  transform(casas_zona_oeste, zona = "oeste"),
+  transform(casas_zona_centro, zona = "centro")
+)
+
+# Convertir 'zona' en un factor para facilitar la asignación de colores
+todas_trinchetas$zona <- factor(todas_trinchetas$zona)
 
 # Crear un mapa Leaflet
 mapa <- leaflet(data = todas_trinchetas) %>%
@@ -598,20 +570,36 @@ mapa <- leaflet(data = todas_trinchetas) %>%
 # Asignar colores a las trinchetas según la zona
 mapa <- mapa %>%
   addCircleMarkers(
-    color = ~case_when(
-      zona == "norte" ~ "blue",
-      zona == "sur" ~ "green",
-      zona == "oriente" ~ "yellow",
-      zona == "oeste" ~ "orange",
-      zona == "centro" ~ "red"
-    ),
+    color = ~colorFactor("Set1", levels(todas_trinchetas$zona))(zona),
     radius = 5,  # Tamaño de los marcadores
     fillOpacity = 0.8,  # Opacidad de relleno
     popup = ~paste("Zona:", zona),  # Contenido del popup
-    label = ~paste("Precio:", preciom, "<br>Área Construida:", areaconst)  # Contenido de la etiqueta
+    label = ~paste("Precio:", preciom, "<br>Área Construida:", areaconst),  # Contenido de la etiqueta
+    lng = ~longitud,  # Columna que contiene la longitud
+    lat = ~latitud  # Columna que contiene la latitud
   )
 
 # Mostrar el mapa
 mapa
+
+```
+
+## 2. EDA Correlación de la variable precio de la casa en función del área construida, estrato, numero de baños, numero de habitaciones y zona donde se ubica la vivienda
+
+
+```{r , warning=FALSE, message=FALSE, echo=FALSE}
+
+# Convertir la variable 'zona' a un factor
+vivienda$zona <- as.factor(vivienda$zona)
+
+# Calcular la correlación entre las variables de interés
+correlation_matrix <- cor(vivienda[, c("preciom", "areaconst", "estrato", "banios", "habitaciones")])
+
+# Crear una matriz de correlación interactiva con plotly
+plot_ly(z = correlation_matrix, type = "heatmap",
+        x = colnames(correlation_matrix), y = colnames(correlation_matrix),
+        colorscale = "Viridis", reversescale = TRUE) %>%
+  layout()
+
 
 ```
