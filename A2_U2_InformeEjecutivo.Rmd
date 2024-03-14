@@ -138,8 +138,6 @@ mapa_norte <- leaflet(casas_zona_norte) %>%
 
 mapa_norte  # Mostrar el mapa interactivo
 
-
-
 # Tabla de frecuencia de los tipos de vivienda en la zona norte
 tipo_counts_norte <- table(casas_zona_norte$tipo)
 cat("Tabla de frecuencia de tipos de vivienda en la zona norte:\n")
@@ -150,7 +148,6 @@ estrato_counts_norte <- table(casas_zona_norte$estrato)
 cat("Tabla de frecuencia de estratos en la zona norte:\n")
 kable(estrato_counts_norte)
   
-
 
 # Tabla de frecuencia de barrios en la zona norte (los 10 primeros)
 top_barrios_norte <- head(table(casas_zona_norte$barrio), 10)
@@ -202,8 +199,6 @@ kable(head(casas_zona_sur, 3))
 # Calcular estadísticas descriptivas
 cat("Estadísticas descriptivas de las ofertas de casas en la zona sur:\n")
 kable(summary(casas_zona_sur))
-
-
 
 ```
 
@@ -584,22 +579,77 @@ mapa
 
 ```
 
-## 2. EDA Correlación de la variable precio de la casa en función del área construida, estrato, numero de baños, numero de habitaciones y zona donde se ubica la vivienda
+## 2. EDA 
+Correlación de la variable precio de la casa en función de: área construida, estrato, numero de baños, numero de habitaciones y zona donde se ubica la vivienda
+
+
+```{r , warning=FALSE, message=FALSE, echo=FALSE }
+install.packages("plotly")
+# Cargar librerías necesarias
+library(plotly)
+
+# Convertir la variable 'zona' a factor
+vivienda$zona <- as.factor(vivienda$zona)
+
+# Generar subset para correlación
+vivienda_correlacion <- vivienda[, c("preciom", "areaconst", "estrato", "banios", "habitaciones", "zona")]
+
+# Calcular coeficientes de correlación
+cor_area <- cor(vivienda_correlacion$preciom, vivienda_correlacion$areaconst)
+cor_estrato <- cor(vivienda_correlacion$preciom, vivienda_correlacion$estrato)
+cor_banios <- cor(vivienda_correlacion$preciom, vivienda_correlacion$banios)
+cor_habitaciones <- cor(vivienda_correlacion$preciom, vivienda_correlacion$habitaciones)
+
+# Gráfico de correlación: Preciom vs Área construida
+plot_precio_area <- plot_ly(vivienda_correlacion, x = ~areaconst, y = ~preciom, type = 'scatter', mode = 'markers', marker = list(color = 'blue'), 
+                            text = ~paste("Área construida: ", areaconst, "<br>Precio: ", preciom, "<br>Correlación: ", round(cor_area, 2)),
+                            hoverinfo = 'text') %>%
+  layout(title = "Correlación entre Precio y Área Construida",
+         xaxis = list(title = "Área Construida"),
+         yaxis = list(title = "Precio"))
+
+# Gráfico de correlación: Preciom vs Estrato
+plot_precio_estrato <- plot_ly(vivienda_correlacion, x = ~estrato, y = ~preciom, type = 'scatter', mode = 'markers', marker = list(color = 'red'), 
+                               text = ~paste("Estrato: ", estrato, "<br>Precio: ", preciom, "<br>Correlación: ", round(cor_estrato, 2)),
+                               hoverinfo = 'text') %>%
+  layout(title = "Correlación entre Precio y Estrato",
+         xaxis = list(title = "Estrato"),
+         yaxis = list(title = "Precio"))
+
+# Gráfico de correlación: Preciom vs Baños
+plot_precio_banios <- plot_ly(vivienda_correlacion, x = ~banios, y = ~preciom, type = 'scatter', mode = 'markers', marker = list(color = 'green'), 
+                              text = ~paste("Baños: ", banios, "<br>Precio: ", preciom, "<br>Correlación: ", round(cor_banios, 2)),
+                              hoverinfo = 'text') %>%
+  layout(title = "Correlación entre Precio y Baños",
+         xaxis = list(title = "Baños"),
+         yaxis = list(title = "Precio"))
+
+# Gráfico de correlación: Preciom vs Habitaciones
+plot_precio_habitaciones <- plot_ly(vivienda_correlacion, x = ~habitaciones, y = ~preciom, type = 'scatter', mode = 'markers', marker = list(color = 'orange'), 
+                                    text = ~paste("Habitaciones: ", habitaciones, "<br>Precio: ", preciom, "<br>Correlación: ", round(cor_habitaciones, 2)),
+                                    hoverinfo = 'text') %>%
+  layout(title = "Correlación entre Precio y Habitaciones",
+         xaxis = list(title = "Habitaciones"),
+         yaxis = list(title = "Precio"))
+
+# Mostrar los gráficos individualmente
+subplot(plot_precio_area)
+subplot(plot_precio_estrato)
+subplot(plot_precio_banios)
+subplot(plot_precio_habitaciones)
+
+```
+
 
 
 ```{r , warning=FALSE, message=FALSE, echo=FALSE}
 
-# Convertir la variable 'zona' a un factor
-vivienda$zona <- as.factor(vivienda$zona)
-
-# Calcular la correlación entre las variables de interés
-correlation_matrix <- cor(vivienda[, c("preciom", "areaconst", "estrato", "banios", "habitaciones")])
-
-# Crear una matriz de correlación interactiva con plotly
-plot_ly(z = correlation_matrix, type = "heatmap",
-        x = colnames(correlation_matrix), y = colnames(correlation_matrix),
-        colorscale = "Viridis", reversescale = TRUE) %>%
-  layout()
-
-
 ```
+
+
+## 2. EDA 
+
+
+
+## 2. EDA 
+
