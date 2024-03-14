@@ -769,7 +769,7 @@ Dado que el coeficiente de determinación es relativamente alto, sugiere que el 
 
 </p>
 
-## 4. validación de supuestos 
+## 4. Validación de supuestos 
 
 
 <p>
@@ -810,35 +810,22 @@ bptest(modelo_rlm)
 <p>En conclusión, el análisis de los residuos del modelo de regresión lineal sugiere que no se ajustan completamente a la normalidad, aunque la desviación no es grave y el tamaño de la muestra parece ser grande. La prueba de Shapiro-Wilk rechaza la normalidad de los residuos, mientras que la prueba de Breusch-Pagan no encuentra evidencia de heterocedasticidad. </p>
 
 
-```{r , warning=FALSE, message=FALSE, echo=FALSE}
 
-```
-
-
-```{r , warning=FALSE, message=FALSE, echo=FALSE}
-
-```
-
-
-
-```{r , warning=FALSE, message=FALSE, echo=FALSE}
-
-```
-
-
-```{r , warning=FALSE, message=FALSE, echo=FALSE}
-
-```
-
-
-```{r , warning=FALSE, message=FALSE, echo=FALSE}
-
-```
 
 ## 5. Predección del precio de la vivienda
 
 
 ```{r , warning=FALSE, message=FALSE, echo=FALSE}
+
+# Convertir la variable 'estrato' a tipo numérico en el dataframe de nuevas viviendas
+viviendas_nuevas$estrato <- as.numeric(gsub(" o ", ".", viviendas_nuevas$estrato))
+
+# Predecir los precios de las viviendas utilizando el modelo de regresión lineal múltiple
+precios_viviendas <- predict(modelo_rlm, newdata = viviendas_nuevas)
+
+# Mostrar los precios estimados para las dos viviendas
+precios_viviendas
+
 
 ```
 
@@ -857,6 +844,28 @@ bptest(modelo_rlm)
 
 
 ```{r , warning=FALSE, message=FALSE, echo=FALSE}
+# Establecer el límite máximo de crédito pre-aprobado
+limite_credito <- 350
+
+# Filtrar las ofertas potenciales que cumplen con el crédito pre-aprobado máximo
+ofertas_potenciales <- subset(vivienda_rlm, precio_predicho <= limite_credito)
+
+# Seleccionar al menos 5 ofertas potenciales aleatoriamente
+set.seed(123)  # Fijar la semilla para reproducibilidad
+ofertas_seleccionadas <- ofertas_potenciales[sample(nrow(ofertas_potenciales), 5), ]
+
+# Crear un mapa mostrando las ubicaciones de las ofertas seleccionadas
+library(ggplot2)
+
+# Definir el mapa base
+mapa <- ggplot() +
+  geom_point(data = ofertas_seleccionadas, aes(x = longitud, y = latitud), color = "blue", size = 3) +
+  ggtitle("Ofertas Potenciales para Vivienda 1") +
+  xlab("Longitud") + ylab("Latitud") +
+  theme_minimal()
+
+# Mostrar el mapa
+print(mapa)
 
 ```
 
@@ -882,6 +891,10 @@ bptest(modelo_rlm)
 ```{r , warning=FALSE, message=FALSE, echo=FALSE}
 
 ```
+
+## 8. Anexos - Repositorio Código fuente
+
+Si deseas consultar como fue construido y desarrollado mi informe, ingresa al siguiente enlace: <b><a href="https://github.com/Jartpuro/A2_U2_InformeEjecutivo">Repositorio Github</a></b>
 
 
 ```{r , warning=FALSE, message=FALSE, echo=FALSE}
