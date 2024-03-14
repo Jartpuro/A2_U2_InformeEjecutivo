@@ -125,7 +125,6 @@ ggplot(casas_zona_norte, aes(x = areaconst, y = preciom)) +
             color = "black", hjust = 1, vjust = 1)
 
 
-
 # Instalar y cargar el paquete leaflet.extras
 suppressMessages(library(leaflet.extras))
 library(leaflet.extras)
@@ -583,6 +582,15 @@ mapa
 Correlación de la variable precio de la casa en función de: área construida, estrato, numero de baños, numero de habitaciones y zona donde se ubica la vivienda
 
 
+<p>
+En este apartado teniendo en cuenta el EDA realizado como resultado del análisis de correlación entre la variable respuesta (preciom) y las variables predictoras (areaconst, estrato, banios, habitaciones y zona) se grafican a continuación 2 modelos de graficas:
+
+
+- Dispersión:  Este tipo de gráfico se utiliza para visualizar la relación entre dos variables cuantitativas, como el precio y el área construida, el precio y el estrato, el precio y el número de baños, y el precio y el número de habitaciones. Cada punto en el gráfico representa una observación en el conjunto de datos. La posición de cada punto en los ejes x e y representa los valores de las dos variables.
+
+- Caja de bigotes: Este tipo de gráfico se utiliza para visualizar la distribución de una variable numérica en diferentes niveles de una variable categórica. En este caso, se utiliza para visualizar la distribución de los precios (variable respuesta) en cada zona (variable categórica).
+
+</p>
 ```{r , warning=FALSE, message=FALSE, echo=FALSE }
 install.packages("plotly")
 # Cargar librerías necesarias
@@ -632,6 +640,20 @@ plot_precio_habitaciones <- plot_ly(vivienda_correlacion, x = ~habitaciones, y =
          xaxis = list(title = "Habitaciones"),
          yaxis = list(title = "Precio"))
 
+# Gráfico de correlación: Preciom vs Zona
+plot_precio_zona <- plot_ly(vivienda_correlacion, x = ~zona, y = ~preciom, type = 'box', 
+                            text = ~paste("Zona: ", zona, "<br>Precio: ", preciom),
+                            hoverinfo = 'text') %>%
+  layout(title = "Correlación entre Precio y Zona",
+         xaxis = list(title = "Zona"),
+         yaxis = list(title = "Precio"))
+
+```
+
+
+
+```{r , warning=FALSE, message=FALSE, echo=FALSE}
+
 # Mostrar los gráficos individualmente
 subplot(plot_precio_area)
 subplot(plot_precio_estrato)
@@ -640,16 +662,121 @@ subplot(plot_precio_habitaciones)
 
 ```
 
+```{r , warning=FALSE, message=FALSE, echo=FALSE}
+subplot(plot_precio_zona)
+```
 
+## 3. Estimación de un modelo de regresión lineal múltiple 
 
 ```{r , warning=FALSE, message=FALSE, echo=FALSE}
+# Estimación de un modelo de regresión lineal múltiple
+modelo_rlm <- lm(preciom ~ areaconst + estrato + habitaciones + parqueaderos + banios, data = vivienda)
+
+# Interpretación de los coeficientes
+summary(modelo_rlm)
+
+# Interpretación del coeficiente R^2
+R2 <- summary(modelo_rlm)$r.squared
+print(R2)
+
+
+```
+
+<p>
+<b>Los resultados de la estimación del modelo de regresión lineal múltiple son los siguientes:</b>
+
+<b>Interpretación de los coeficientes</b>:
+
+<ul>
+    <li><b>Intercepto</b>: El coeficiente del intercepto es -380.7629. Esto significa que, cuando todas las demás variables son cero, el precio estimado de una vivienda es de -380.7629 unidades monetarias. Sin embargo, dado que este valor no tiene una interpretación realista en este contexto, no se le da mucha importancia en la interpretación.</li>
+
+    <li><b>Área Construida</b>: El coeficiente para el área construida es 0.8510. Esto indica que, manteniendo constantes todas las demás variables, por cada unidad adicional de área construida, el precio estimado de la vivienda aumenta en 0.8510 unidades monetarias.</li>
+
+    <li><b>Estrato</b>: El coeficiente para el estrato es 97.9107. Esto sugiere que, manteniendo constantes todas las demás variables, el precio estimado de la vivienda aumenta en 97.9107 unidades monetarias por cada incremento de una unidad en el estrato.</li>
+
+    <li><b>Número de Cuartos</b>: El coeficiente para el número de cuartos es -31.2744. Esto indica que, manteniendo constantes todas las demás variables, por cada incremento de una unidad en el número de cuartos, el precio estimado de la vivienda disminuye en 31.2744 unidades monetarias.</li>
+
+    <li><b>Número de Parqueaderos</b>: El coeficiente para el número de parqueaderos es 74.4922. Esto sugiere que, manteniendo constantes todas las demás variables, por cada unidad adicional de parqueaderos, el precio estimado de la vivienda aumenta en 74.4922 unidades monetarias.</li>
+
+    <li><b>Número de Baños</b>: El coeficiente para el número de baños es 61.0554. Esto indica que, manteniendo constantes todas las demás variables, por cada unidad adicional de baños, el precio estimado de la vivienda aumenta en 61.0554 unidades monetarias.</li>
+</ul>
+
+
+<h3>Gráfico de residuos vs. valores ajustados </h3>
+
+```{r , warning=FALSE, message=FALSE, echo=FALSE}
+
+# Residuos del modelo
+residuos <- resid(modelo_rlm)
+
+# Valores ajustados del modelo
+valores_ajustados <- fitted(modelo_rlm)
+
+# Gráfico de residuos vs. valores ajustados
+plot(valores_ajustados, residuos, main = "Gráfico de Residuos vs. Valores Ajustados",
+     xlab = "Valores Ajustados", ylab = "Residuos")
+abline(h = 0, col = "red")  # Línea horizontal en y = 0
+
 
 ```
 
 
-## 2. EDA 
+<h3>Gráfico de distribución de los residuos </h3>
+
+```{r , warning=FALSE, message=FALSE, echo=FALSE}
+
+# Histograma de los residuos
+hist(residuos, breaks = 20, main = "Histograma de Residuos", xlab = "Residuos")
+
+# Gráfico de probabilidad normal de los residuos
+qqnorm(residuos, main = "Gráfico Q-Q de los Residuos")
+qqline(residuos)  # Línea de referencia para la distribución normal
+
+```
+
+
+<h3> Gráfico de efectos parciales  </h3>
+
+```{r , warning=FALSE, message=FALSE, echo=FALSE}
+
+# Biblioteca para gráficos de efectos parciales
+install.packages("effects")
+library(effects)
+
+# Gráfico de efectos parciales para el área construida
+plot(effect("areaconst", modelo_rlm), main = "Efecto Parcial del Área Construida en el Precio")
+
+```
+
+
+<h3>  Gráficos de dispersión con línea de regresión</h3>
+
+```{r , warning=FALSE, message=FALSE, echo=FALSE}
+# Gráfico de dispersión del área construida vs. precio con línea de regresión
+plot(vivienda$areaconst, vivienda$preciom, main = "Área Construida vs. Precio",
+     xlab = "Área Construida", ylab = "Precio")
+abline(coef(modelo_rlm)[1], coef(modelo_rlm)[2], col = "red")  # Línea de regresión
+
+
+```
 
 
 
-## 2. EDA 
 
+<b>Interpretación del coeficiente R^2</b>:
+El coeficiente de determinación (R^2) es 0.7206. Esto significa que aproximadamente el 72.06% de la variabilidad en el precio de la vivienda puede ser explicada por las variables independientes incluidas en el modelo. Esto indica un buen ajuste del modelo a los datos observados.
+
+<b>Discusión sobre el ajuste del modelo e implicaciones</b>:
+Dado que el coeficiente de determinación es relativamente alto, sugiere que el modelo de regresión lineal múltiple es capaz de explicar una gran proporción de la variabilidad en el precio de la vivienda utilizando las variables incluidas. Sin embargo, siempre hay margen para mejorar el modelo. Para ello, podríamos considerar la inclusión de variables adicionales relevantes, como la ubicación geográfica, la antigüedad de la propiedad o características específicas del vecindario, que podrían mejorar la capacidad predictiva del modelo y explicar aún más la variabilidad en los precios de las propiedades. Además, podríamos explorar posibles transformaciones en las variables existentes o técnicas de modelado más avanzadas para mejorar aún más la precisión del modelo.
+
+</p>
+
+## 4. validación de supuestos 
+
+## 5. Predección del precio de la vivienda
+
+
+## 6. Ofertas potenciales
+
+
+## 7. Escenario de crédito pre-aprobado
