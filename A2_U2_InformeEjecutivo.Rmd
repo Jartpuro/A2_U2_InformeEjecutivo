@@ -817,66 +817,92 @@ bptest(modelo_rlm)
 
 ```{r , warning=FALSE, message=FALSE, echo=FALSE}
 
-# Convertir la variable 'estrato' a tipo numérico en el dataframe de nuevas viviendas
-viviendas_nuevas$estrato <- as.numeric(gsub(" o ", ".", viviendas_nuevas$estrato))
+# Crear un dataframe con las características de las viviendas
+viviendas_nuevas <- data.frame(
+  Tipo = c("Casa", "Apartamento"),
+  areaconst = c(200, 300),
+  parqueaderos = c(1, 3),
+  banios = c(2, 3),
+  habitaciones = c(4, 5),
+  estrato = c(4:5, 5:6),  # Se incluyen los estratos para ambas opciones de vivienda
+  zona = c("Norte", "Sur"),
+  credito_preaprobado = c(350, 850)
+)
 
 # Predecir los precios de las viviendas utilizando el modelo de regresión lineal múltiple
 precios_viviendas <- predict(modelo_rlm, newdata = viviendas_nuevas)
+
 
 # Mostrar los precios estimados para las dos viviendas
 precios_viviendas
 
 
-```
-
-
-```{r , warning=FALSE, message=FALSE, echo=FALSE}
 
 ```
 
 
-```{r , warning=FALSE, message=FALSE, echo=FALSE}
 
-```
 
 ## 6. Ofertas potenciales
 
 
 
+
+
+Ojito
+
 ```{r , warning=FALSE, message=FALSE, echo=FALSE}
-# Establecer el límite máximo de crédito pre-aprobado
-limite_credito <- 350
-
-# Filtrar las ofertas potenciales que cumplen con el crédito pre-aprobado máximo
-ofertas_potenciales <- subset(vivienda_rlm, precio_predicho <= limite_credito)
-
-# Seleccionar al menos 5 ofertas potenciales aleatoriamente
-set.seed(123)  # Fijar la semilla para reproducibilidad
-ofertas_seleccionadas <- ofertas_potenciales[sample(nrow(ofertas_potenciales), 5), ]
-
-# Crear un mapa mostrando las ubicaciones de las ofertas seleccionadas
+# Cargar paquetes necesarios
 library(ggplot2)
+library(dplyr)
 
-# Definir el mapa base
-mapa <- ggplot() +
-  geom_point(data = ofertas_seleccionadas, aes(x = longitud, y = latitud), color = "blue", size = 3) +
-  ggtitle("Ofertas Potenciales para Vivienda 1") +
-  xlab("Longitud") + ylab("Latitud") +
-  theme_minimal()
+# Características de la vivienda solicitada
+vivienda_solicitada <- data.frame(
+  tipo = "Casa",
+  areaconst = 200,
+  parqueaderos = 1,
+  banios = 2,
+  habitaciones = 4,
+  estrato = c(4, 5),  # Asumiendo que el estrato puede ser 4 o 5
+  zona = "Norte",
+  credito_preaprobado = 350
+)
 
-# Mostrar el mapa
-print(mapa)
+## 6. Ofertas potenciales
 
-```
+# Filtrar ofertas potenciales que cumplen con las características de la vivienda solicitada
+ofertas_potenciales <- subset(vivienda,
+                               tipo == vivienda_solicitada$tipo &
+                                 areaconst == vivienda_solicitada$areaconst &
+                                 parqueaderos == vivienda_solicitada$parqueaderos &
+                                 banios == vivienda_solicitada$banios &
+                                 habitaciones == vivienda_solicitada$habitaciones &
+                                 estrato %in% vivienda_solicitada$estrato &
+                                 zona == vivienda_solicitada$zona &
+                                 preciom <= vivienda_solicitada$credito_preaprobado)
 
+# Filtrar observaciones sin valores faltantes
+ofertas_potenciales <- na.omit(ofertas_potenciales)
 
-```{r , warning=FALSE, message=FALSE, echo=FALSE}
+# Verificar el número de observaciones en ofertas_potenciales
+num_observaciones <- nrow(ofertas_potenciales)
 
-```
-
-
-
-```{r , warning=FALSE, message=FALSE, echo=FALSE}
+if (num_observaciones >= 5) {
+  # Seleccionar aleatoriamente 5 observaciones
+  ofertas_seleccionadas <- ofertas_potenciales %>%
+    sample_n(5, replace = TRUE)
+  
+  # Visualizar ofertas potenciales en un mapa
+  mapa <- ggplot() +
+    geom_point(data = ofertas_seleccionadas, aes(x = longitud, y = latitud), color = "blue") +
+    labs(x = "Longitud", y = "Latitud", title = "Ofertas Potenciales") +
+    theme_minimal()
+  
+  # Imprimir mapa
+  print(mapa)
+} else {
+  print("No hay suficientes observaciones para seleccionar 5 ofertas potenciales.")
+}
 
 ```
 
