@@ -761,8 +761,6 @@ abline(coef(modelo_rlm)[1], coef(modelo_rlm)[2], col = "red")  # Línea de regre
 ```
 
 
-
-
 <b>Interpretación del coeficiente R^2</b>:
 El coeficiente de determinación (R^2) es 0.7206. Esto significa que aproximadamente el 72.06% de la variabilidad en el precio de la vivienda puede ser explicada por las variables independientes incluidas en el modelo. Esto indica un buen ajuste del modelo a los datos observados.
 
@@ -773,10 +771,119 @@ Dado que el coeficiente de determinación es relativamente alto, sugiere que el 
 
 ## 4. validación de supuestos 
 
+
+<p>
+Esta sección tiene como objetivo realizar pruebas para validar dos supuestos importantes en el análisis de regresión lineal:
+
+Normalidad de los residuos: En donde la prueba de Shapiro-Wilk pretende evaluar si los residuos del modelo siguen una distribución normal. Esto es importante porque el análisis de regresión lineal asume que los errores (residuos) siguen una distribución normal. Si los residuos no se distribuyen normalmente, podría indicar que el modelo no está capturando completamente la estructura de los datos o que hay otros factores que no se han tenido en cuenta.
+
+Homocedasticidad de los residuos: En donde la prueba de Breusch-Pagan pretende evaluar si los residuos tienen una varianza constante en relación con las variables independientes. La homocedasticidad significa que la varianza de los residuos es constante en todos los niveles de las variables independientes. Si hay heterocedasticidad, es decir, la varianza de los residuos no es constante, puede haber un problema de modelado que afecte la precisión de las estimaciones y las pruebas de hipótesis.
+
+. </p>
+```{r , warning=FALSE, message=FALSE, echo=FALSE}
+
+
+# Cargar el paquete lmtest
+library(lmtest)
+
+# Gráfico Q-Q de los residuos
+qqnorm(residuos, main = "Gráfico Q-Q de los Residuos")
+qqline(residuos)  # Línea de referencia para la distribución normal
+
+# Histograma de los residuos
+hist(residuos, breaks = 20, main = "Histograma de Residuos", xlab = "Residuos")
+
+# Realizar prueba de Shapiro-Wilk solo si el tamaño de la muestra es adecuado (entre 3 y 5000)
+if (length(residuos) >= 3 & length(residuos) <= 5000) {
+  # Prueba de Shapiro-Wilk para normalidad de los residuos
+  shapiro.test(residuos)
+} else {
+  cat("El tamaño de la muestra de residuos no es adecuado para realizar la prueba de Shapiro-Wilk.\n")
+}
+
+# Prueba de Breusch-Pagan para homocedasticidad de los residuos
+bptest(modelo_rlm)
+
+
+```
+
+<p>En conclusión, el análisis de los residuos del modelo de regresión lineal sugiere que no se ajustan completamente a la normalidad, aunque la desviación no es grave y el tamaño de la muestra parece ser grande. La prueba de Shapiro-Wilk rechaza la normalidad de los residuos, mientras que la prueba de Breusch-Pagan no encuentra evidencia de heterocedasticidad. </p>
+
+
+```{r , warning=FALSE, message=FALSE, echo=FALSE}
+
+```
+
+
+```{r , warning=FALSE, message=FALSE, echo=FALSE}
+
+```
+
+
+
+```{r , warning=FALSE, message=FALSE, echo=FALSE}
+
+```
+
+
+```{r , warning=FALSE, message=FALSE, echo=FALSE}
+
+```
+
+
+```{r , warning=FALSE, message=FALSE, echo=FALSE}
+
+```
+
 ## 5. Predección del precio de la vivienda
 
+
+```{r , warning=FALSE, message=FALSE, echo=FALSE}
+
+```
+
+
+```{r , warning=FALSE, message=FALSE, echo=FALSE}
+
+```
+
+
+```{r , warning=FALSE, message=FALSE, echo=FALSE}
+
+```
 
 ## 6. Ofertas potenciales
 
 
+
+```{r , warning=FALSE, message=FALSE, echo=FALSE}
+
+```
+
+
+```{r , warning=FALSE, message=FALSE, echo=FALSE}
+
+```
+
+
+
+```{r , warning=FALSE, message=FALSE, echo=FALSE}
+
+```
+
 ## 7. Escenario de crédito pre-aprobado
+
+
+```{r , warning=FALSE, message=FALSE, echo=FALSE}
+
+```
+
+
+```{r , warning=FALSE, message=FALSE, echo=FALSE}
+
+```
+
+
+```{r , warning=FALSE, message=FALSE, echo=FALSE}
+
+```
