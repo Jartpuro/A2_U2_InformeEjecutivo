@@ -22,6 +22,30 @@ devtools::install_github("dgonxalex80/paqueteMODELOS", force =TRUE)
 library(paqueteMODELOS)
 library(knitr)
 library(devtools)
+# Cargar el paquete necesario para visualizar los datos en un mapa
+install_leaflet <- capture.output(install.packages("leaflet"), file = NULL)
+library(leaflet)
+
+# Cargar el paquete ggplot2 para visualizaciones gráficas
+install_ggplot2 <- suppressMessages(install.packages("ggplot2"))
+library(ggplot2)
+
+# Instalar y cargar el paquete leaflet.extras
+suppressMessages(library(leaflet.extras))
+
+# Cargar librerías necesarias para gráficos de efectos parciales
+install.packages("effects")
+library(effects)
+
+# Cargar el paquete lmtest para pruebas estadísticas
+library(lmtest)
+
+# Cargar la librería plotly para gráficos interactivos
+install.packages("plotly")
+library(plotly)
+library(dplyr)
+
+
 data("vivienda")
 ```
 
@@ -75,7 +99,7 @@ str(vivienda)
 ## 1. Realice un filtro a la base de datos 
 
 
-<h2>Base 1 Casas Zona Norte</h2>
+<h3>Base 1 Casas Zona Norte</h3>
 
 <p>De acuerdo a la solicitud del informe se presenta a continuación un sub conjunto de datos que permite visualizar el contenido correspondiente al tipo de inmueble casa para la zona norte, en este sentido se destaca lo siguiente:
 
@@ -87,15 +111,6 @@ El análisis del área construida revela una diversidad similar, con valores que
 
 Además de los precios y el área construida, otros atributos como el número de parqueaderos, baños y habitaciones también varían significativamente, con valores máximos de 10 en cada caso. Estos atributos son cruciales para entender las características y comodidades de las casas en la zona norte.</p>
 ```{r , warning=FALSE, message=FALSE, echo=FALSE}
-# Cargar el paquete necesario para visualizar los datos en un mapa
-install_leaflet <- capture.output(install.packages("leaflet"), file = NULL)
-library(leaflet)
-
-
-
-# Cargar el paquete ggplot2 para visualizaciones gráficas
-install_ggplot2 <- suppressMessages(install.packages("ggplot2"))
-library(ggplot2)
 
 # Filtrar la base de datos para incluir solo las ofertas de casas de la zona norte
 casas_zona_norte <- subset(vivienda, tipo == "Casa" & zona == "Zona Norte")
@@ -107,7 +122,6 @@ kable(head(casas_zona_norte, 3))
 # Calcular estadísticas descriptivas
 cat("Estadísticas descriptivas de las ofertas de casas en la zona norte:\n")
 kable(summary(casas_zona_norte))
-
 
 ```
 
@@ -124,10 +138,6 @@ ggplot(casas_zona_norte, aes(x = areaconst, y = preciom)) +
             label = paste("Correlación:", round(cor(casas_zona_norte$areaconst, casas_zona_norte$preciom), 2)), 
             color = "black", hjust = 1, vjust = 1)
 
-
-# Instalar y cargar el paquete leaflet.extras
-suppressMessages(library(leaflet.extras))
-library(leaflet.extras)
 
 # Mapa con los puntos de las bases y botón de reset
 mapa_norte <- leaflet(casas_zona_norte) %>%
@@ -147,24 +157,21 @@ estrato_counts_norte <- table(casas_zona_norte$estrato)
 cat("Tabla de frecuencia de estratos en la zona norte:\n")
 kable(estrato_counts_norte)
   
-
 # Tabla de frecuencia de barrios en la zona norte (los 10 primeros)
 top_barrios_norte <- head(table(casas_zona_norte$barrio), 10)
 top_barrios_df_norte <- as.data.frame(top_barrios_norte)  # Convertir a un dataframe para usar dplyr
 
 # Ordenar la tabla por frecuencia de forma descendente
-library(dplyr)
 top_barrios_df_norte <- arrange(top_barrios_df_norte, desc(Freq))
 
 # Imprimir la tabla ordenada
 cat("Tabla de frecuencia de barrios en la zona norte (ordenada por frecuencia descendente):\n")
 kable(top_barrios_df_norte)
 
-
 ```
 
 
-<h2>Base 2 Casas Zona Sur</h2>
+<h3>Base 2 Casas Zona Sur</h3>
 
 <p>
 Las estadísticas descriptivas de las ofertas de casas en la zona sur muestran una diversidad significativa en los datos. Con un total de 1939 registros, este conjunto de datos parece haber sido filtrado adecuadamente para incluir solo las ofertas de casas en la zona sur. Se observa la presencia de valores faltantes en algunos atributos, lo cual es consistente con la estructura original del dataset.
@@ -177,16 +184,6 @@ Además de los precios y el área construida, otros atributos como el número de
 
 
 ```{r , warning=FALSE, message=FALSE, echo=FALSE}
-
-# Cargar el paquete necesario para visualizar los datos en un mapa
-install_leaflet <- capture.output(install.packages("leaflet"), file = NULL)
-library(leaflet)
-
-
-
-# Cargar el paquete ggplot2 para visualizaciones gráficas
-install_ggplot2 <- suppressMessages(install.packages("ggplot2"))
-library(ggplot2)
 
 # Filtrar la base de datos para incluir solo las ofertas de casas de la zona norte
 casas_zona_sur <- subset(vivienda, tipo == "Casa" & zona == "Zona Sur")
@@ -222,11 +219,6 @@ ggplot(casas_zona_sur, aes(x = areaconst, y = preciom)) +
             label = paste("Correlación:", round(cor(casas_zona_sur$areaconst, casas_zona_sur$preciom), 2)), 
             color = "black", hjust = 1, vjust = 1)
 
-
-# Instalar y cargar el paquete leaflet.extras
-suppressMessages(library(leaflet.extras))
-library(leaflet.extras)
-
 # Mapa con los puntos de las bases y botón de reset
 mapa_sur <- leaflet(casas_zona_sur) %>%
   addTiles() %>%
@@ -234,8 +226,6 @@ mapa_sur <- leaflet(casas_zona_sur) %>%
   addResetMapButton()
 
 mapa_sur  # Mostrar el mapa interactivo
-
-
 
 # Tabla de frecuencia de los tipos de vivienda en la zona norte
 tipo_counts_sur <- table(casas_zona_sur$tipo)
@@ -247,25 +237,21 @@ estrato_counts_sur <- table(casas_zona_sur$estrato)
 cat("Tabla de frecuencia de estratos en la zona sur:\n")
 kable(estrato_counts_sur)
   
-
-
 # Tabla de frecuencia de barrios en la zona norte (los 10 primeros)
 top_barrios_sur <- head(table(casas_zona_sur$barrio), 10)
 top_barrios_df_sur <- as.data.frame(top_barrios_sur)  # Convertir a un dataframe para usar dplyr
 
 # Ordenar la tabla por frecuencia de forma descendente
-library(dplyr)
 top_barrios_df_sur <- arrange(top_barrios_df_sur, desc(Freq))
 
 # Imprimir la tabla ordenada
 cat("Tabla de frecuencia de barrios en la zona sur (ordenada por frecuencia descendente):\n")
 kable(top_barrios_df_sur)
 
-
 ```
 
 
-<h2>Base 3 Casas Zona Oriente</h2>
+<h3>Base 3 Casas Zona Oriente</h3>
 
 
 <p>
@@ -280,16 +266,6 @@ Además de los precios y el área construida, otros atributos como el número de
 
 ```{r , warning=FALSE, message=FALSE, echo=FALSE}
 
-# Cargar el paquete necesario para visualizar los datos en un mapa
-install_leaflet <- capture.output(install.packages("leaflet"), file = NULL)
-library(leaflet)
-
-
-
-# Cargar el paquete ggplot2 para visualizaciones gráficas
-install_ggplot2 <- suppressMessages(install.packages("ggplot2"))
-library(ggplot2)
-
 # Filtrar la base de datos para incluir solo las ofertas de casas de la zona norte
 casas_zona_oriente <- subset(vivienda, tipo == "Casa" & zona == "Zona Oriente")
 
@@ -300,8 +276,6 @@ kable(head(casas_zona_oriente, 3))
 # Calcular estadísticas descriptivas
 cat("Estadísticas descriptivas de las ofertas de casas en la zona Oriente:\n")
 kable(summary(casas_zona_oriente))
-
-
 
 ```
 
@@ -322,10 +296,6 @@ ggplot(casas_zona_oriente, aes(x = areaconst, y = preciom)) +
             label = paste("Correlación:", round(cor(casas_zona_oriente$areaconst, casas_zona_oriente$preciom), 2)), 
             color = "black", hjust = 1, vjust = 1)
 
-# Instalar y cargar el paquete leaflet.extras
-suppressMessages(library(leaflet.extras))
-library(leaflet.extras)
-
 # Mapa con los puntos de las bases y botón de reset
 mapa_oriente <- leaflet(casas_zona_oriente) %>%
   addTiles() %>%
@@ -344,24 +314,21 @@ estrato_counts_oriente <- table(casas_zona_oriente$estrato)
 cat("Tabla de frecuencia de estratos en la zona oriente:\n")
 kable(estrato_counts_oriente)
   
-
 # Tabla de frecuencia de barrios en la zona norte (los 10 primeros)
 top_barrios_oriente <- head(table(casas_zona_oriente$barrio), 10)
 top_barrios_df_oriente <- as.data.frame(top_barrios_oriente)  # Convertir a un dataframe para usar dplyr
 
 # Ordenar la tabla por frecuencia de forma descendente
-library(dplyr)
 top_barrios_df_oriente <- arrange(top_barrios_df_oriente, desc(Freq))
 
 # Imprimir la tabla ordenada
 cat("Tabla de frecuencia de barrios en la zona oriente (ordenada por frecuencia descendente):\n")
 kable(top_barrios_df_oriente)
 
-
 ```
 
 
-<h2> Base 4 Casas Zona Oeste</h2>
+<h3> Base 4 Casas Zona Oeste</h3>
 
 
 <p>
@@ -373,17 +340,6 @@ El análisis del área construida también muestra una diversidad notable, con v
 </p>
 
 ```{r , warning=FALSE, message=FALSE, echo=FALSE}
-
-# Cargar el paquete necesario para visualizar los datos en un mapa
-install_leaflet <- capture.output(install.packages("leaflet"), file = NULL)
-library(leaflet)
-
-
-
-# Cargar el paquete ggplot2 para visualizaciones gráficas
-install_ggplot2 <- suppressMessages(install.packages("ggplot2"))
-library(ggplot2)
-
 # Filtrar la base de datos para incluir solo las ofertas de casas de la zona norte
 casas_zona_oeste <- subset(vivienda, tipo == "Casa" & zona == "Zona Oeste")
 
@@ -414,10 +370,6 @@ ggplot(casas_zona_oeste, aes(x = areaconst, y = preciom)) +
             label = paste("Correlación:", round(cor(casas_zona_oeste$areaconst, casas_zona_oeste$preciom), 2)), 
             color = "black", hjust = 1, vjust = 1)
 
-# Instalar y cargar el paquete leaflet.extras
-suppressMessages(library(leaflet.extras))
-library(leaflet.extras)
-
 # Mapa con los puntos de las bases y botón de reset
 mapa_oeste <- leaflet(casas_zona_oeste) %>%
   addTiles() %>%
@@ -425,7 +377,6 @@ mapa_oeste <- leaflet(casas_zona_oeste) %>%
   addResetMapButton()
 
 mapa_oeste  # Mostrar el mapa interactivo
-
 
 # Tabla de frecuencia de los tipos de vivienda en la zona norte
 tipo_counts_oeste <- table(casas_zona_oeste$tipo)
@@ -437,13 +388,11 @@ estrato_counts_oeste <- table(casas_zona_oeste$estrato)
 cat("Tabla de frecuencia de estratos en la zona Oeste:\n")
 kable(estrato_counts_oeste)
   
-
 # Tabla de frecuencia de barrios en la zona norte (los 10 primeros)
 top_barrios_oeste <- head(table(casas_zona_oeste$barrio), 10)
 top_barrios_df_oeste <- as.data.frame(top_barrios_oeste)  # Convertir a un dataframe para usar dplyr
 
 # Ordenar la tabla por frecuencia de forma descendente
-library(dplyr)
 top_barrios_df_oeste <- arrange(top_barrios_df_oeste, desc(Freq))
 
 # Imprimir la tabla ordenada
@@ -452,7 +401,7 @@ kable(top_barrios_df_oeste)
 
 ```
 
-<h2> Base 5 Casas Zona Centro</h2>
+<h3> Base 5 Casas Zona Centro</h3>
 
 <p>
 Las estadísticas descriptivas de las ofertas de casas en la zona centro revelan una distribución diversificada en los datos. Con un total de 100 registros, se destaca una variabilidad significativa en los atributos considerados. Al igual que en otras zonas, se encuentran valores faltantes en algunos atributos, lo cual es coherente con la estructura original del dataset.
@@ -463,15 +412,6 @@ El análisis del área construida también muestra una diversidad significativa,
 
 </p>
 ```{r , warning=FALSE, message=FALSE, echo=FALSE}
-
-# Cargar el paquete necesario para visualizar los datos en un mapa
-install_leaflet <- capture.output(install.packages("leaflet"), file = NULL)
-library(leaflet)
-
-# Cargar el paquete ggplot2 para visualizaciones gráficas
-install_ggplot2 <- suppressMessages(install.packages("ggplot2"))
-library(ggplot2)
-
 # Filtrar la base de datos para incluir solo las ofertas de casas de la zona norte
 casas_zona_centro <- subset(vivienda, tipo == "Casa" & zona == "Zona Centro")
 
@@ -500,10 +440,6 @@ ggplot(casas_zona_centro, aes(x = areaconst, y = preciom)) +
             label = paste("Correlación:", round(cor(casas_zona_centro$areaconst, casas_zona_centro$preciom), 2)), 
             color = "black", hjust = 1, vjust = 1)
 
-# Instalar y cargar el paquete leaflet.extras
-suppressMessages(library(leaflet.extras))
-library(leaflet.extras)
-
 # Mapa con los puntos de las bases y botón de reset
 mapa_centro <- leaflet(casas_zona_centro) %>%
   addTiles() %>%
@@ -527,7 +463,6 @@ top_barrios_centro <- head(table(casas_zona_centro$barrio), 10)
 top_barrios_df_centro <- as.data.frame(top_barrios_centro)  # Convertir a un dataframe para usar dplyr
 
 # Ordenar la tabla por frecuencia de forma descendente
-library(dplyr)
 top_barrios_df_centro <- arrange(top_barrios_df_centro, desc(Freq))
 
 # Imprimir la tabla ordenada
@@ -536,14 +471,12 @@ kable(top_barrios_df_centro)
 
 ```
 
-## Momento de discución
+<h3> Momento de discusión</h3>
 <p>
 En el siguiente mapa se puede observar a una sola vista como se encuentra la distribución de casas según la zona registrada en el dataset, es importante destacar que se logra identificar que existen barrios que según sus coordenadas comparten la misma zona, esto puede deberse a errores humanos en el ingreso de longitud y latitud o en la asignación de la variable barrio en el sistema de información que se diseñó para la captura de los datos.
 </p>
 
 ```{r , warning=FALSE, message=FALSE, echo=FALSE}
-
-library(leaflet)
 
 # Combinar datos de trinchetas de todas las zonas en un único conjunto de datos
 todas_trinchetas <- rbind(
@@ -592,10 +525,6 @@ En este apartado teniendo en cuenta el EDA realizado como resultado del análisi
 
 </p>
 ```{r , warning=FALSE, message=FALSE, echo=FALSE }
-install.packages("plotly")
-# Cargar librerías necesarias
-library(plotly)
-
 # Filtrar el dataframe para las viviendas de tipo "Casa"
 vivienda_casa <- subset(vivienda, tipo == "Casa")
 
@@ -687,7 +616,7 @@ print(R2)
 <p>
 <b>Los resultados de la estimación del modelo de regresión lineal múltiple son los siguientes:</b>
 
-<b>Interpretación de los coeficientes</b>:
+<h3><b>Interpretación de los coeficientes</b></h3>:
 
 <ul>
     <li><b>Intercepto</b>: El coeficiente del intercepto es -413.87536. Esto significa que, cuando todas las demás variables son cero, el precio estimado de una vivienda es de -413.87536 unidades monetarias. Sin embargo, dado que este valor no tiene una interpretación realista en este contexto, no se le da mucha importancia en la interpretación.</li>
@@ -736,11 +665,6 @@ qqline(residuos)  # Línea de referencia para la distribución normal
 <h3> Gráfico de efectos parciales  </h3>
 
 ```{r , warning=FALSE, message=FALSE, echo=FALSE}
-
-# Biblioteca para gráficos de efectos parciales
-install.packages("effects")
-library(effects)
-
 # Gráfico de efectos parciales para el área construida
 plot(effect("areaconst", modelo_rlm_casa), main = "Efecto Parcial del Área Construida en el Precio")
 
@@ -758,7 +682,7 @@ abline(coef(modelo_rlm_casa)[1], coef(modelo_rlm_casa)[2], col = "red")  # Líne
 ```
 
 
-<b>Interpretación del coeficiente R^2</b>:
+<h3><b>Interpretación del coeficiente R^2</b></h3>:
 El coeficiente de determinación (R^2) es aproximadamente 0.6834. Esto significa que alrededor del 68.34% de la variabilidad en el precio de la vivienda puede ser explicada por las variables independientes incluidas en el modelo. Esto indica un buen ajuste del modelo a los datos observados.
 
 <b>Discusión sobre el ajuste del modelo e implicaciones</b>:
@@ -778,10 +702,6 @@ Homocedasticidad de los residuos: En donde la prueba de Breusch-Pagan pretende e
 . </p>
 ```{r , warning=FALSE, message=FALSE, echo=FALSE}
 
-
-# Cargar el paquete lmtest
-library(lmtest)
-
 # Gráfico Q-Q de los residuos
 qqnorm(residuos, main = "Gráfico Q-Q de los Residuos")
 qqline(residuos)  # Línea de referencia para la distribución normal
@@ -800,12 +720,9 @@ if (length(residuos) >= 3 & length(residuos) <= 5000) {
 # Prueba de Breusch-Pagan para homocedasticidad de los residuos
 bptest(modelo_rlm_casa)
 
-
 ```
 
 <p>En conclusión, el análisis de los residuos del modelo de regresión lineal sugiere que no se ajustan completamente a la normalidad, aunque la desviación no es grave y el tamaño de la muestra parece ser grande. La prueba de Shapiro-Wilk rechaza la normalidad de los residuos, mientras que la prueba de Breusch-Pagan no encuentra evidencia de heterocedasticidad. </p>
-
-
 
 
 ## 5. Predección del precio de la vivienda
@@ -827,12 +744,12 @@ vivienda_nueva <- data.frame(
 
 # Crear combinaciones de características para viviendas potenciales
 combinaciones <- expand.grid(
-  areaconst = c(180, 200, 220),  # Área construida
+  areaconst = c(180, 200),  # Área construida
   parqueaderos = c(1, 2),          # Número de parqueaderos
   banios = c(2, 3),                # Número de baños
-  habitaciones = c(3, 4, 5),       # Número de habitaciones
+  habitaciones = c(3, 4),       # Número de habitaciones
   estrato = c(4, 5),               # Estrato
-  zona = "Norte"                   # Zona
+  zona = "Zona Norte"                   # Zona
 )
 
 # Predecir el precio de las viviendas potenciales
@@ -860,11 +777,19 @@ plot_ly(resultados_filtrados, x = ~index, y = ~precio_predicho, type = "scatter"
 
 ```
 
-
-
 ## 6. Ofertas potenciales
 
+<p>Los resultados muestran las características de las primeras cinco viviendas potenciales que cumplen con las condiciones establecidas y cuyo precio estimado no supera el límite del crédito preaprobado para la nueva vivienda. 
 
+Área Construida:Las áreas construidas de estas viviendas varían entre 180 y 200 metros cuadrados.
+Parqueaderos: Todas las viviendas tienen al menos un parqueadero, con una de ellas teniendo dos.
+Baños: La cantidad de baños oscila entre 2 y 3.
+Habitaciones:** Todas las viviendas tienen entre 3 y 4 habitaciones.
+Estrato: Las viviendas pertenecen a estratos 4.
+Zona: Todas las viviendas se encuentran en la Zona Norte.
+Precio Estimado: Los precios estimados de estas viviendas varían entre 282.1364 y 346.4359 millones de pesos.
+
+Estos resultados son útiles para presentar a Maria las primeras opciones de viviendas potenciales que se ajustan a los criterios establecidos y están dentro del presupuesto disponible para su compra.</p>
 ```{r , warning=FALSE, message=FALSE, echo=FALSE}
 
 # Agregar los precios estimados al dataframe de combinaciones
@@ -875,11 +800,12 @@ ofertas_potenciales <- combinaciones[combinaciones$precio_estimado <= vivienda_n
 
 # Mostrar las 5 ofertas potenciales
 print(head(ofertas_potenciales, 5))
+
 ```
 
 ## 7. Escenario de crédito pre-aprobado para tipo de vivienda Apartamento
 
-<p>Base 1 Apartamentos Zona Norte</p>
+<h3><p>Base 1 Apartamentos Zona Norte</p></h3>
 ```{r , warning=FALSE, message=FALSE, echo=FALSE}
 
 # Filtrar la base de datos para incluir solo las ofertas de casas de la zona norte
@@ -907,11 +833,10 @@ mapa_ap_norte <- leaflet(apartamentos_zona_norte) %>%
 
 mapa_ap_norte  # Mostrar el mapa interactivo
 
-
 ```
 
 
-<p>Base 2 Apartamentos Zona Sur</p>
+<h3><p>Base 2 Apartamentos Zona Sur</p></h3>
 ```{r , warning=FALSE, message=FALSE, echo=FALSE}
 
 # Filtrar la base de datos para incluir solo las ofertas de casas de la zona norte
@@ -943,7 +868,7 @@ mapa_ap_sur  # Mostrar el mapa interactivo
 ```
 
 
-<p>Base 2 Apartamentos Zona Oeste</p>
+<h3><p>Base 2 Apartamentos Zona Oeste</p></h3>
 ```{r , warning=FALSE, message=FALSE, echo=FALSE}
 
 # Filtrar la base de datos para incluir solo las ofertas de casas de la zona norte
@@ -963,7 +888,6 @@ ggplot(apartamentos_zona_oeste, aes(x = areaconst, y = preciom)) +
             label = paste("Correlación:", round(cor(apartamentos_zona_oeste$areaconst, apartamentos_zona_oeste$preciom), 2)), 
             color = "black", hjust = 1, vjust = 1)
 
-
 # Mapa con los puntos de la base y botón de reset
 mapa_ap_oeste <- leaflet(apartamentos_zona_oeste) %>%
   addTiles() %>%
@@ -975,8 +899,7 @@ mapa_ap_oeste  # Mostrar el mapa interactivo
 ```
 
 
-
-<p>Base 2 Apartamentos Zona Oriente</p>
+<h3><p>Base 2 Apartamentos Zona Oriente</p></h3>
 ```{r , warning=FALSE, message=FALSE, echo=FALSE}
 
 # Filtrar la base de datos para incluir solo las ofertas de casas de la zona norte
@@ -985,7 +908,6 @@ apartamentos_zona_oriente <- subset(vivienda, tipo == "Apartamento" & zona == "Z
 # Mostrar los primeros 3 registros de la base de datos filtrada
 cat("Primeros 3 registros de la base de datos filtrada:\n")
 kable(head(apartamentos_zona_oriente, 3))
-
 
 # Gráfico de dispersión de precios versus área construida con ggplot2
 ggplot(apartamentos_zona_oriente, aes(x = areaconst, y = preciom)) +
@@ -996,7 +918,6 @@ ggplot(apartamentos_zona_oriente, aes(x = areaconst, y = preciom)) +
   geom_text(x = max(apartamentos_zona_oriente$areaconst), y = max(apartamentos_zona_oriente$preciom), 
             label = paste("Correlación:", round(cor(apartamentos_zona_oriente$areaconst, apartamentos_zona_oriente$preciom), 2)), 
             color = "black", hjust = 1, vjust = 1)
-
 
 # Mapa con los puntos de la base y botón de reset
 mapa_ap_oriente <- leaflet(apartamentos_zona_oriente) %>%
@@ -1009,7 +930,7 @@ mapa_ap_oriente  # Mostrar el mapa interactivo
 ```
 
 
-<p>Base 2 Apartamentos Zona Centro</p>
+<h3><p>Base 2 Apartamentos Zona Centro</p></h3>
 ```{r , warning=FALSE, message=FALSE, echo=FALSE}
 
 # Filtrar la base de datos para incluir solo las ofertas de casas de la zona norte
