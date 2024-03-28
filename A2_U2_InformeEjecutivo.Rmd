@@ -17,7 +17,7 @@ knitr::opts_chunk$set(echo = TRUE)
 options(repos = "https://cloud.r-project.org/")
 
 # Instalar y cargar paquetes necesarios
-required_packages <- c("paqueteMODELOS", "leaflet", "ggplot2", "effects", "plotly", "leaflet.extras", "dplyr", "lmtest", "corrplot", "tidyverse", "skimr")
+required_packages <- c("paqueteMODELOS", "leaflet", "ggplot2", "effects", "plotly", "leaflet.extras", "dplyr", "lmtest", "corrplot", "tidyverse", "skimr", "vioplot")
 
 
 install_if_missing <- function(package) {
@@ -1020,8 +1020,6 @@ Tambien es valido destacar que al igual con los datos registrados en el tipo de 
 vivienda_apartamento <- subset(vivienda, tipo == "Apartamento") #Creacuón del subset filtrado por tipo vivienda apartamento
 ```
 
-
-
 ```{r , warning=FALSE, message=FALSE, echo=FALSE}
 
 # Resumen estadístico descriptivo
@@ -1036,14 +1034,20 @@ summary(vivienda_apartamento[, sapply(vivienda_apartamento, is.numeric)])
 # Estadísticas descriptivas para variables categóricas
 summary(vivienda_apartamento[, sapply(vivienda_apartamento, is.factor)])
 
-# Histograma y gráficos de densidad para el precio de los apartamentos
-ggplot(vivienda_apartamento, aes(x = preciom)) +
-  geom_histogram(binwidth = 1000000, fill = "blue", color = "black") +
-  geom_density(alpha = 0.2, fill = "red") +
+
+# Gráfico de violín para la distribución del precio de los apartamentos
+ggplot(vivienda_apartamento, aes(x = "", y = preciom, fill = "Precio")) +
+  geom_violin(trim = FALSE, draw_quantiles = c(0.25, 0.5, 0.75), scale = "width", width = 0.8) +
+  geom_boxplot(width = 0.1, fill = "white", color = "black") +
+  scale_fill_manual(values = c("Precio" = "blue")) +
   labs(title = "Distribución del Precio de los Apartamentos",
-       x = "Precio",
-       y = "Frecuencia") +
-  theme_minimal()
+       x = "",
+       y = "Precio",
+       fill = "") +
+  theme_minimal() +
+  theme(legend.position = "none")
+
+
 
 # Gráfico de dispersión de precio vs. área construida
 ggplot(vivienda_apartamento, aes(x = areaconst, y = preciom)) +
@@ -1052,9 +1056,6 @@ ggplot(vivienda_apartamento, aes(x = areaconst, y = preciom)) +
        x= "Área Construida",
        y = "Precio") +
   theme_minimal()
-
-
-
 
 
 # Seleccionar las variables de interés para el ANOVA
@@ -1075,11 +1076,6 @@ names(anova_results) <- variables_interes[-6]  # Eliminar 'zona' del nombre de l
 print(anova_results)
 
 
-
-
-
-
-
 # Resumen estadístico para variables numéricas usando skimr
 skim(vivienda_apartamento)
 
@@ -1087,7 +1083,16 @@ skim(vivienda_apartamento)
 
 
 
+<p> Interpretación del Modelo
+El modelo de regresión lineal múltiple ajustado es:
 
+Precio = β0 + β1 * Área Construida + β2 * Estrato + β3 * Parqueaderos + β4 * Baños + β5 * Habitaciones + ε
+
+Donde:
+
+β0 es el intercepto, que representa el precio esperado cuando todas las demás variables son cero.
+β1, β2, β3, β4 y β5 son los coeficientes de regresión que representan el cambio esperado en el precio para un aumento unitario en cada variable, manteniendo todas las demás variables constantes.
+ε es el término de error.</p>
 ```{r , warning=FALSE, message=FALSE, echo=FALSE}
 
 # Seleccionar variables de interés
@@ -1133,8 +1138,10 @@ R_cuadrado <- summary(modelo_regresion)$r.squared
 cat("El R^2 del modelo es:", R_cuadrado, "\n")
 
 ```
+<p> 
+El análisis del modelo de regresión aplicado revela que el precio de la vivienda está influenciado significativamente por diversas características. Por cada metro cuadrado adicional en el área construida, el precio aumenta en aproximadamente $2.22 millones. Respecto a los estratos, se observa un aumento significativo en el precio con valores cercanos a $56.92 millones para estrato 6, mientras que para los baños y habitaciones, se registra un incremento de aproximadamente $61.11 millones y una disminución de alrededor de $32.93 millones, respectivamente, por cada unidad adicional. En cuanto a las zonas, se identifican variaciones de precios significativas, siendo la Zona Sur la de mayor impacto con un incremento de $118.86 millones, seguida por la Zona Norte con $31.09 millones, la Zona Oeste con $20.09 millones y la Zona Centro con $19.32 millones. El modelo tiene un coeficiente de determinación (R^2) de aproximadamente 0.78, lo que indica que alrededor del 78.39% de la variabilidad en el precio de la vivienda puede ser explicada por las variables incluidas en el modelo, demostrando un buen ajuste.</p>
+<h2>Validacion de supuestos</h2>
 
-<p>Validacion supuestos</p>
 
 ```{r , warning=FALSE, message=FALSE, echo=FALSE}
 # 1. Normalidad de los residuos
@@ -1144,12 +1151,13 @@ qqline(modelo_regresion$resid)
 # 2. Homocedasticidad de los residuos
 plot(modelo_regresion$resid, fitted(modelo_regresion))
 
-# 3. Independencia de los residuos
-# Se puede probar el test de Breusch-Pagan para la heterocedasticidad
-bptest(modelo_regresion)
+# 3. Heterocedasticidad de los residuos (Breusch-Pagan test)
+bp_test <- bptest(modelo_regresion)
+bp_test
 
-# También se puede evaluar la autocorrelación de los residuos utilizando el test de Ljung-Box
-Box.test(modelo_regresion$resid, type = "Ljung-Box")
+# 4. Autocorrelación de los residuos (Ljung-Box test)
+ljung_box_test <- Box.test(modelo_regresion$resid, type = "Ljung-Box")
+ljung_box_test
 
 
 ```
@@ -1161,6 +1169,67 @@ Test de Ljung-Box para autocorrelación de los residuos:
 El valor de estadístico de prueba (X-squared) es 127.18 con 1 grado de libertad, y el p-valor es menor que 2.2e-16. Esto indica que hay evidencia significativa para rechazar la hipótesis nula de independencia de los residuos, lo que sugiere que los residuos están autocorrelacionados.
 
 Estos resultados pueden indicar que el modelo de regresión lineal múltiple puede no cumplir completamente con los supuestos de homocedasticidad e independencia de los residuos.</p>
+
+<h2> Predicción del precio</h2>
+```{r , warning=FALSE, message=FALSE, echo=FALSE}
+
+# Definir las características de la vivienda
+vivienda_nueva <- data.frame(
+  tipo = "Apartamento",
+  areaconst = 300,
+  banios = 3,
+  habitaciones = 5,
+  estrato = c(5, 6),  # Se permiten dos opciones de estrato
+  zona = "Zona Sur",
+  credito_preaprobado = 850
+)
+
+
+
+# Predecir el precio de la vivienda con las características especificadas
+prediccion_precio <- predict(modelo_regresion, newdata = vivienda_nueva)
+prediccion_precio
+
+```
+
+<p>La predicción del precio para la vivienda especificada es de $732.8381 millones (para el estrato 5) y $789.7567 millones (para el estrato 6).</p>
+
+<h2> Potenciales ofertas</h2>
+```{r , warning=FALSE, message=FALSE, echo=FALSE}
+
+
+# Crear combinaciones de características para viviendas potenciales
+combinaciones <- expand.grid(
+  areaconst = c(280, 300),  # Área construida
+  banios = c(3, 4),                # Número de baños
+  habitaciones = c(4, 5),       # Número de habitaciones
+  estrato = c(5, 6),               # Estrato
+  zona = "Zona Sur"                   # Zona
+)
+
+# Predecir el precio de las viviendas potenciales
+precios_predichos <- predict(modelo_regresion, newdata = combinaciones)
+
+# Agregar los precios estimados al dataframe de combinaciones
+combinaciones$precio_estimado <- precios_predichos
+
+# Seleccionar las primeras 5 viviendas potenciales dentro del crédito preaprobado
+ofertas_potenciales <- combinaciones[combinaciones$precio_estimado <= vivienda_nueva$credito_preaprobado, ]
+
+# Mostrar las 5 ofertas potenciales
+print(head(ofertas_potenciales, 5))
+
+
+
+```
+<p>
+Las ofertas potenciales presentan una variedad de opciones en términos de tamaño, distribución de espacios y precios estimados. La primera oferta, con un área construida de 280 metros cuadrados, ofrece 3 baños y 4 habitaciones, con un precio estimado de alrededor de $721.31 millones. La segunda opción, también con 300 metros cuadrados, cuenta con características similares pero un precio ligeramente superior, aproximadamente $765.77 millones. La tercera y cuarta oferta, con áreas construidas de 280 y 300 metros cuadrados respectivamente, presentan 4 baños y 4 habitaciones, con precios estimados de $782.42 y $826.88 millones respectivamente. Finalmente, la quinta oferta, con 280 metros cuadrados, ofrece 3 baños y 5 habitaciones, con el precio estimado más bajo de todas, alrededor de $688.38 millones. Estas opciones brindan a los potenciales compradores una gama de alternativas para seleccionar la vivienda que mejor se ajuste a sus necesidades y presupuesto.
+
+
+
+
+ </p>
+
 
 ## 8. Anexos - Repositorio Código fuente
 
