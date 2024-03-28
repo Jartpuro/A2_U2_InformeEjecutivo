@@ -12,41 +12,32 @@ output:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-```
 
-```{r , include=FALSE, message=FALSE, echo=FALSE, warning=FALSE}
-
+# Configurar opciones
 options(repos = "https://cloud.r-project.org/")
-#install.packages("devtools") # solo la primera vez
-devtools::install_github("dgonxalex80/paqueteMODELOS", force =TRUE)
-library(paqueteMODELOS)
-library(knitr)
-library(devtools)
-# Cargar el paquete necesario para visualizar los datos en un mapa
-install_leaflet <- capture.output(install.packages("leaflet"), file = NULL)
-library(leaflet)
 
-# Cargar el paquete ggplot2 para visualizaciones gráficas
-install_ggplot2 <- suppressMessages(install.packages("ggplot2"))
-library(ggplot2)
+# Instalar y cargar paquetes necesarios
+required_packages <- c("paqueteMODELOS", "leaflet", "ggplot2", "effects", "plotly", "leaflet.extras", "dplyr", "lmtest")
+install_if_missing <- function(package) {
+  if (!require(package, character.only = TRUE)) {
+    install.packages(package)
+    library(package, character.only = TRUE)
+  }
+}
 
-# Instalar y cargar el paquete leaflet.extras
-suppressMessages(library(leaflet.extras))
+# Instalación de paquete MODELOS desde GitHub
+if (!require(paqueteMODELOS)) {
+  devtools::install_github("dgonxalex80/paqueteMODELOS", force = TRUE)
+}
 
-# Cargar librerías necesarias para gráficos de efectos parciales
-install.packages("effects")
-library(effects)
+# Instalar y cargar paquetes
+invisible(sapply(required_packages, install_if_missing))
 
-# Cargar el paquete lmtest para pruebas estadísticas
-library(lmtest)
+# Cargar conjunto de datos si es necesario
+if (!exists("vivienda")) {
+  data("vivienda")
+}
 
-# Cargar la librería plotly para gráficos interactivos
-install.packages("plotly")
-library(plotly)
-library(dplyr)
-
-
-data("vivienda")
 ```
 
 <h1>Caso C&A</h1>
@@ -579,6 +570,9 @@ plot_precio_zona <- plot_ly(vivienda_correlacion, x = ~zona, y = ~preciom, type 
   layout(title = "Correlación entre Precio y Zona (Casa)",
          xaxis = list(title = "Zona"),
          yaxis = list(title = "Precio"))
+
+
+
 ```
 
 
@@ -595,6 +589,11 @@ subplot(plot_precio_habitaciones)
 
 ```{r , warning=FALSE, message=FALSE, echo=FALSE}
 subplot(plot_precio_zona)
+
+# Matriz de correlación de las variables independientes
+cor_matrix <- cor(vivienda_casa[, c("areaconst", "estrato", "habitaciones", "parqueaderos", "banios")])
+cor_matrix
+
 ```
 
 ## 3. Estimación de un modelo de regresión lineal múltiple 
@@ -682,7 +681,7 @@ abline(coef(modelo_rlm_casa)[1], coef(modelo_rlm_casa)[2], col = "red")  # Líne
 ```
 
 
-<h3><b>Interpretación del coeficiente R^2</b></h3>:
+<h3><b>Interpretación del coeficiente R^2</b>:</h3>
 El coeficiente de determinación (R^2) es aproximadamente 0.6834. Esto significa que alrededor del 68.34% de la variabilidad en el precio de la vivienda puede ser explicada por las variables independientes incluidas en el modelo. Esto indica un buen ajuste del modelo a los datos observados.
 
 <b>Discusión sobre el ajuste del modelo e implicaciones</b>:
@@ -806,6 +805,17 @@ print(head(ofertas_potenciales, 5))
 ## 7. Escenario de crédito pre-aprobado para tipo de vivienda Apartamento
 
 <h3><p>Base 1 Apartamentos Zona Norte</p></h3>
+
+
+<p> El gráfico de dispersión muestra la relación entre el precio y el área construida de apartamentos en la Zona Norte. Se observa una tendencia positiva, es decir, que a medida que aumenta el área construida, también aumenta el precio.
+
+Coeficiente de correlación:El coeficiente de correlación de Pearson es de 0.8, lo que indica una fuerte correlación positiva entre las dos variables. Esto significa que existe una relación lineal significativa entre el precio y el área construida.
+
+Interpretación del coeficiente:
+
+Valor: Un valor de 0.8 indica que el 64% de la variación en el precio de los apartamentos puede explicarse por la variación en el área construida. El 36% restante se explica por otros factores no considerados en el gráfico.
+
+Significancia: El coeficiente de correlación es estadísticamente significativo, lo que significa que es poco probable que se haya obtenido por casualidad.</p>
 ```{r , warning=FALSE, message=FALSE, echo=FALSE}
 
 # Filtrar la base de datos para incluir solo las ofertas de casas de la zona norte
