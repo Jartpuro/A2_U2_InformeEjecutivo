@@ -17,7 +17,9 @@ knitr::opts_chunk$set(echo = TRUE)
 options(repos = "https://cloud.r-project.org/")
 
 # Instalar y cargar paquetes necesarios
-required_packages <- c("paqueteMODELOS", "leaflet", "ggplot2", "effects", "plotly", "leaflet.extras", "dplyr", "lmtest")
+required_packages <- c("paqueteMODELOS", "leaflet", "ggplot2", "effects", "plotly", "leaflet.extras", "dplyr", "lmtest", "corrplot", "tidyverse", "skimr")
+
+
 install_if_missing <- function(package) {
   if (!require(package, character.only = TRUE)) {
     install.packages(package)
@@ -591,10 +593,15 @@ subplot(plot_precio_habitaciones)
 subplot(plot_precio_zona)
 
 # Matriz de correlación de las variables independientes
-cor_matrix <- cor(vivienda_casa[, c("areaconst", "estrato", "habitaciones", "parqueaderos", "banios")])
+cor_matrix <- cor(vivienda_casa[, c("preciom","areaconst", "estrato", "habitaciones", "parqueaderos", "banios")])
 cor_matrix
 
+
+# Graficar la matriz de correlación
+corrplot(cor_matrix, method = "color", type = "upper", addCoef.col = "black", tl.col = "black", tl.srt = 45)
 ```
+<p>La correlación más alta con "preciom" es con la variable "estrato" (0.6658), seguida por "areaconst" (0.6529) y "banios" (0.5581). Esto indica que hay una correlación positiva moderada a fuerte entre el precio de la vivienda y estas características.</p>
+
 
 ## 3. Estimación de un modelo de regresión lineal múltiple 
 
@@ -804,18 +811,10 @@ print(head(ofertas_potenciales, 5))
 
 ## 7. Escenario de crédito pre-aprobado para tipo de vivienda Apartamento
 
+<h2>Segmentación por zonas</h2>
+
 <h3><p>Base 1 Apartamentos Zona Norte</p></h3>
 
-
-<p> El gráfico de dispersión muestra la relación entre el precio y el área construida de apartamentos en la Zona Norte. Se observa una tendencia positiva, es decir, que a medida que aumenta el área construida, también aumenta el precio.
-
-Coeficiente de correlación:El coeficiente de correlación de Pearson es de 0.8, lo que indica una fuerte correlación positiva entre las dos variables. Esto significa que existe una relación lineal significativa entre el precio y el área construida.
-
-Interpretación del coeficiente:
-
-Valor: Un valor de 0.8 indica que el 64% de la variación en el precio de los apartamentos puede explicarse por la variación en el área construida. El 36% restante se explica por otros factores no considerados en el gráfico.
-
-Significancia: El coeficiente de correlación es estadísticamente significativo, lo que significa que es poco probable que se haya obtenido por casualidad.</p>
 ```{r , warning=FALSE, message=FALSE, echo=FALSE}
 
 # Filtrar la base de datos para incluir solo las ofertas de casas de la zona norte
@@ -972,9 +971,196 @@ mapa_ap_centro  # Mostrar el mapa interactivo
 
 ```
 
+
 ```{r , warning=FALSE, message=FALSE, echo=FALSE}
 
+# Combinar datos de trinchetas de todas las zonas en un único conjunto de datos
+todas_trinchetas <- rbind(
+  transform(apartamentos_zona_norte, zona = "norte"),
+  transform(apartamentos_zona_sur, zona = "sur"),
+  transform(apartamentos_zona_oriente, zona = "oriente"),
+  transform(apartamentos_zona_oeste, zona = "oeste"),
+  transform(apartamentos_zona_centro, zona = "centro")
+)
+
+# Convertir 'zona' en un factor para facilitar la asignación de colores
+todas_trinchetas$zona <- factor(todas_trinchetas$zona)
+
+# Crear un mapa Leaflet
+mapa <- leaflet(data = todas_trinchetas) %>%
+  addTiles()  # Añadir el fondo de mapa base
+
+# Asignar colores a las trinchetas según la zona
+mapa <- mapa %>%
+  addCircleMarkers(
+    color = ~colorFactor("Set1", levels(todas_trinchetas$zona))(zona),
+    radius = 5,  # Tamaño de los marcadores
+    fillOpacity = 0.8,  # Opacidad de relleno
+    popup = ~paste("Zona:", zona),  # Contenido del popup
+    label = ~paste("Precio:", preciom, "<br>Área Construida:", areaconst),  # Contenido de la etiqueta
+    lng = ~longitud,  # Columna que contiene la longitud
+    lat = ~latitud  # Columna que contiene la latitud
+  )
+
+# Mostrar el mapa
+mapa
+
 ```
+
+
+<p> Basado en la información generada se identifica que según el gráfico de dispersión: La zona oeste presenta la mayor concentración de puntos en la zona superior derecha, lo que indica una mayor cantidad de propiedades con precios elevados y áreas construidas amplias. de otra parte el rango de precios para la zona oeste es el más alto, por tanto, la zona oeste tiene el coeficiente de correlación más fuerte (0.82), lo que indica una relación más estrecha entre precio y área construida.
+
+Ahora hablando de la comparación con otras zonas, se observa que la Zona Sur aunque tiene un coeficiente de correlación similar a la zona norte (0.76), el rango de precios es ligeramente inferior. La Zona Norte: Si bien presenta un rango de precios similar a la zona sur, la concentración de puntos en la zona superior derecha del gráfico de dispersión es menor. Por su parte la Zona Oriente es la que presenta los precios más bajos, aunque presenta un dato atípico en la gráfica este no altera la tendencia general de precios más bajos. Por ultimo  la Zona Centro Ofrece precios intermedios, con una poca oferta inmoboliaria respecto a Apartamento, esto puede deberse a la dinamica comercial propia del sector reduciendo la vivienda residencial.
+
+Tambien es valido destacar que al igual con los datos registrados en el tipo de vivienda "Casa" se evidencia un error humano en la asignación del tipo de zona o en los datos de longitud y latitud dado que en el ultimo grafico se observa que existen traslapos en los colores, esto sucede con mayor incidencia en la parte superior del mapa.</p>
+
+<h2>Analisis exploratorio </h2>
+```{r , warning=FALSE, message=FALSE, echo=FALSE}
+
+vivienda_apartamento <- subset(vivienda, tipo == "Apartamento") #Creacuón del subset filtrado por tipo vivienda apartamento
+```
+
+
+
+```{r , warning=FALSE, message=FALSE, echo=FALSE}
+
+# Resumen estadístico descriptivo
+summary(vivienda_apartamento)
+
+# Revisar la estructura de los datos
+str(vivienda_apartamento)
+
+# Estadísticas descriptivas para variables numéricas
+summary(vivienda_apartamento[, sapply(vivienda_apartamento, is.numeric)])
+
+# Estadísticas descriptivas para variables categóricas
+summary(vivienda_apartamento[, sapply(vivienda_apartamento, is.factor)])
+
+# Histograma y gráficos de densidad para el precio de los apartamentos
+ggplot(vivienda_apartamento, aes(x = preciom)) +
+  geom_histogram(binwidth = 1000000, fill = "blue", color = "black") +
+  geom_density(alpha = 0.2, fill = "red") +
+  labs(title = "Distribución del Precio de los Apartamentos",
+       x = "Precio",
+       y = "Frecuencia") +
+  theme_minimal()
+
+# Gráfico de dispersión de precio vs. área construida
+ggplot(vivienda_apartamento, aes(x = areaconst, y = preciom)) +
+  geom_point(color = "blue", size = 3) +
+  labs(title = "Precio vs Área Construida de los Apartamentos",
+       x= "Área Construida",
+       y = "Precio") +
+  theme_minimal()
+
+
+
+
+
+# Seleccionar las variables de interés para el ANOVA
+variables_interes <- c("preciom", "areaconst", "estrato", "banios", "habitaciones", "zona")
+vivienda_apartamento_seleccion <- vivienda_apartamento[, variables_interes]
+
+# Convertir la variable categórica 'zona' en factor
+vivienda_apartamento_seleccion$zona <- as.factor(vivienda_apartamento_seleccion$zona)
+
+# Realizar ANOVA para cada variable numérica en función de la variable categórica 'zona'
+anova_results <- lapply(vivienda_apartamento_seleccion[, -6], function(x) {
+  aov_result <- aov(x ~ zona, data = vivienda_apartamento_seleccion)
+  return(summary(aov_result))
+})
+
+# Imprimir los resultados del ANOVA
+names(anova_results) <- variables_interes[-6]  # Eliminar 'zona' del nombre de las variables
+print(anova_results)
+
+
+
+
+
+
+
+# Resumen estadístico para variables numéricas usando skimr
+skim(vivienda_apartamento)
+
+```
+
+
+
+
+```{r , warning=FALSE, message=FALSE, echo=FALSE}
+
+# Seleccionar variables de interés
+variables_interes <- c("preciom", "areaconst", "estrato", "banios", "habitaciones", "zona")
+vivienda_apartamento_seleccion <- vivienda_apartamento[, variables_interes]
+
+# Convertir la variable categórica 'zona' en factor
+vivienda_apartamento_seleccion$zona <- as.factor(vivienda_apartamento_seleccion$zona)
+
+# Modelo de regresión lineal múltiple
+modelo_regresion <- lm(preciom ~ areaconst + estrato + banios + habitaciones + zona, 
+                      data = vivienda_apartamento_seleccion)
+
+# Resumen del modelo
+summary(modelo_regresion)
+
+# Coeficientes de regresión
+coeficientes <- coef(modelo_regresion)
+
+# Interpretar coeficientes
+# Área construida
+area_construida_coef <- coeficientes["areaconst"]
+cat("El coeficiente para el área construida es:", area_construida_coef, "\n")
+
+# Estrato
+estrato_coef <- coeficientes["estrato"]
+cat("Los coeficientes para los estratos son:", estrato_coef, "\n")
+
+# Baños
+banios_coef <- coeficientes["banios"]
+cat("El coeficiente para los baños es:", banios_coef, "\n")
+
+# Habitaciones
+habitaciones_coef <- coeficientes["habitaciones"]
+cat("El coeficiente para las habitaciones es:", habitaciones_coef, "\n")
+
+# Zona
+zona_coef <- coeficientes[grep("zona", names(coeficientes))]
+cat("Los coeficientes para las zonas son:", zona_coef, "\n")
+
+# R^2
+R_cuadrado <- summary(modelo_regresion)$r.squared
+cat("El R^2 del modelo es:", R_cuadrado, "\n")
+
+```
+
+<p>Validacion supuestos</p>
+
+```{r , warning=FALSE, message=FALSE, echo=FALSE}
+# 1. Normalidad de los residuos
+qqnorm(modelo_regresion$resid)
+qqline(modelo_regresion$resid)
+
+# 2. Homocedasticidad de los residuos
+plot(modelo_regresion$resid, fitted(modelo_regresion))
+
+# 3. Independencia de los residuos
+# Se puede probar el test de Breusch-Pagan para la heterocedasticidad
+bptest(modelo_regresion)
+
+# También se puede evaluar la autocorrelación de los residuos utilizando el test de Ljung-Box
+Box.test(modelo_regresion$resid, type = "Ljung-Box")
+
+
+```
+
+<p>Test de Breusch-Pagan para homocedasticidad:
+El valor de estadístico de prueba (BP) es 1465.5 con 8 grados de libertad, y el p-valor es menor que 2.2e-16. Esto indica que hay evidencia significativa para rechazar la hipótesis nula de homocedasticidad, lo que sugiere que los residuos no tienen varianza constante.
+
+Test de Ljung-Box para autocorrelación de los residuos:
+El valor de estadístico de prueba (X-squared) es 127.18 con 1 grado de libertad, y el p-valor es menor que 2.2e-16. Esto indica que hay evidencia significativa para rechazar la hipótesis nula de independencia de los residuos, lo que sugiere que los residuos están autocorrelacionados.
+
+Estos resultados pueden indicar que el modelo de regresión lineal múltiple puede no cumplir completamente con los supuestos de homocedasticidad e independencia de los residuos.</p>
 
 ## 8. Anexos - Repositorio Código fuente
 
